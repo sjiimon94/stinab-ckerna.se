@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+  /* Warm, editorial palette */
+  --color-cream: #faf8f5;
+  --color-sand: #f0e8dc;
+  --color-sand-dark: #d9ccba;
+  --color-forest: #1a2e1c;
+  --color-forest-light: #243d26;
+  --color-sage: #7a9e7e;
+  --color-sage-dark: #5f8163;
+  --color-sage-light: #eaf1eb;
+  --color-ink: #2c3e2d;
+  --color-ink-muted: #6b7c6c;
+  --color-clay: #c8835f;
+  --color-clay-dark: #b06f4b;
+  --color-clay-light: #f5e6dc;
+  --color-border: #e2ddd6;
+  --color-white: #ffffff;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Subtle card lift */
+.lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px -6px rgba(44, 62, 45, 0.14);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lift:hover {
+    transform: none;
+  }
+}
+
+/* FAQ details/summary styling */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
