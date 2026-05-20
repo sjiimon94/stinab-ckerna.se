@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 interface Address {
   line1: string | null;
@@ -53,7 +53,6 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const refreshTrigger = useRef(0);
   const [fetchTick, setFetchTick] = useState(0);
 
   // Trigger a fetch whenever token changes or refreshTrigger is incremented
@@ -98,7 +97,6 @@ export default function AdminPage() {
   }, [token, fetchTick]);
 
   function handleRefresh() {
-    refreshTrigger.current += 1;
     setFetchTick((t) => t + 1);
   }
 

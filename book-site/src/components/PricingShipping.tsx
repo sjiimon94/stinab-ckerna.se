@@ -28,8 +28,11 @@ export default function PricingShipping() {
             </h3>
             <div>
               <p className="flex items-baseline justify-between border-b border-white/10 pb-3">
-                <span className="text-white/80">Stina och mamma städar <span className="text-white/50 text-xs">(inkl. 6% moms)</span></span>
-                <span className="font-bold text-white">179 kr</span>
+                <span className="text-white/80">Stina och mamma städar</span>
+                <span className="font-bold text-white">
+                  179 kr
+                  <span className="ml-1 text-xs font-normal text-white/50">(inkl. 6% moms)</span>
+                </span>
               </p>
               <p className="flex items-baseline justify-between border-b border-white/10 py-3">
                 <span className="text-white/80">Frakt (Sverige)</span>
