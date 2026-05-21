@@ -1,12 +1,43 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import Stripe from "stripe";
 
 export const metadata: Metadata = {
   title: "Tack för ditt köp!",
   description: "Din beställning är bekräftad.",
 };
 
-export default function SuccessPage() {
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY is not set");
+  return new Stripe(key, { apiVersion: "2026-04-22.dahlia" });
+}
+
+export default async function SuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ session_id?: string }>;
+}) {
+  const { session_id } = await searchParams;
+
+  if (!session_id) {
+    redirect("/");
+  }
+
+  let paid = false;
+  try {
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    paid = session.payment_status === "paid";
+  } catch {
+    redirect("/");
+  }
+
+  if (!paid) {
+    redirect("/");
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4 py-24 text-center">
       {/* Icon */}

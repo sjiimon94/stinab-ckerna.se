@@ -1,3 +1,4 @@
+import Link from "next/link";
 import BuyButton from "./BuyButton";
 
 export default function Navbar() {
@@ -5,9 +6,9 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-forest/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
         {/* Brand */}
-        <a href="/" className="font-serif text-base font-bold text-white sm:text-lg">
+        <Link href="/" className="font-serif text-base font-bold text-white sm:text-lg">
           Stina och mamma städar
-        </a>
+        </Link>
 
         {/* Navigation anchors (desktop) */}
         <nav

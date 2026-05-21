@@ -8,11 +8,10 @@ const paragraphs = [
   "Stina och mamma städar är en varm och igenkännbar bilderbok om vardagslivet i en familj – om samarbete, skratt och om hur vardagspusslet kan bli något fint när man gör det tillsammans.",
 ];
 
-// [REPLACE] Update the author section with real author information and photo
 const author = {
   name: "Cecilia Strandevall",
-  bio: "Cecilia Strandevall är författaren bakom Stina och mamma städar. Med ett varmt berättarhjärta och blick för det lilla i vardagen skapar hon böcker som berör och engagerar hela familjen.",
-  // [REPLACE] Add real author photo at /author-photo.jpg
+  bio: 'Cecilia Strandevall är barnboksförfattaren bakom "Stina och mamma städar". Med ett varmt berättarhjärta och ett öga för det lilla i vardagen skapar hon böcker som berör och engagerar hela familjen. ISBN: 978-91-8117-467-0.',
+  // Add real author photo at /author-photo.jpg when available
   photo: null as string | null,
 };
 
@@ -42,18 +41,15 @@ export default function BookDescription() {
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-border pt-8 text-sm">
               <div>
                 <dt className="font-semibold text-ink">Format</dt>
-                {/* [REPLACE] Update with real book format */}
-                <dd className="mt-0.5 text-ink-muted">Bilderbok, inbunden</dd>
+                <dd className="mt-0.5 text-ink-muted">Bilderbok, inbunden (hårda pärmar)</dd>
               </div>
               <div>
                 <dt className="font-semibold text-ink">Ålder</dt>
-                {/* [REPLACE] Update with target age range */}
-                <dd className="mt-0.5 text-ink-muted">3–7 år</dd>
+                <dd className="mt-0.5 text-ink-muted">3–6 år</dd>
               </div>
               <div>
                 <dt className="font-semibold text-ink">Antal sidor</dt>
-                {/* [REPLACE] Update with real page count */}
-                <dd className="mt-0.5 text-ink-muted">[SIDANTAL]</dd>
+                <dd className="mt-0.5 text-ink-muted">32</dd>
               </div>
               <div>
                 <dt className="font-semibold text-ink">Språk</dt>
@@ -72,7 +68,7 @@ export default function BookDescription() {
             <div className="overflow-hidden rounded-2xl bg-forest p-8 text-center shadow-xl">
               <div className="mx-auto w-fit overflow-hidden rounded-xl shadow-lg">
                 {/*
-                  [REPLACE] Replace with your real book cover.
+                  Replace with your real book cover.
                   Path: /book-cover.jpg (or .png/.svg)
                 */}
                 <Image
@@ -103,7 +99,7 @@ export default function BookDescription() {
                     className="h-14 w-14 flex-shrink-0 rounded-full object-cover"
                   />
                 ) : (
-                  // [REPLACE] This placeholder disappears once you set author.photo above
+                  // This placeholder disappears once you set author.photo above
                   <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-sage-light text-2xl">
                     ✍️
                   </div>

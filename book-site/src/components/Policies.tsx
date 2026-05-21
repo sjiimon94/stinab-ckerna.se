@@ -1,24 +1,3 @@
-/**
- * Condensed policies section.
- * [REPLACE] Review all policy text with a lawyer before publishing as legally binding.
- */
-const policies = [
-  {
-    title: "Ångerrätt & retur",
-    body: "Du har 14 dagars ångerrätt från det att du tagit emot boken, i enlighet med distansavtalslagen. Kontakta oss på cecilia@strandevall.se för att meddela att du vill returnera. Varan ska vara i obrutet skick. Återbetalning sker inom 14 dagar efter att vi tagit emot returen, med samma betalningsmetod som användes vid köpet.",
-  },
-  {
-    title: "Integritetspolicy",
-    // [REPLACE] Update with your full GDPR-compliant privacy policy text
-    body: "Dina personuppgifter (namn, adress, e-post) behandlas enbart för att genomföra ditt köp och skicka din beställning. Vi delar inte dina uppgifter med tredje part utöver betalnings- och fraktleverantörer. Läs vår fullständiga integritetspolicy för mer information. [REPLACE: lägg till länk till fullständig policy]",
-  },
-  {
-    title: "Köpvillkor",
-    // [REPLACE] Update with your full terms of purchase
-    body: "Köp sker i svenska kronor (SEK). Priset som visas inkluderar moms. Betalning sker via Stripe Checkout (kort eller Swish). Du får en orderbekräftelse per e-post. Vi reserverar oss för eventuella prisjusteringar och tillfälliga lagerbristsituationer. [REPLACE: komplettera med fullständiga villkor]",
-  },
-];
-
 export default function Policies() {
   return (
     <section id="villkor" className="bg-cream px-4 py-20 sm:py-24">
@@ -35,16 +14,169 @@ export default function Policies() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {policies.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-2xl border border-border bg-white p-6 shadow-sm"
-            >
-              <h3 className="mb-3 font-bold text-ink">{p.title}</h3>
-              <p className="text-sm leading-relaxed text-ink-muted">{p.body}</p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {/* Ångerrätt & retur */}
+          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <h3 className="mb-3 font-bold text-ink">Ångerrätt &amp; retur</h3>
+            <div className="space-y-3 text-sm leading-relaxed text-ink-muted">
+              <p>
+                Du har 14 dagars ångerrätt från det att du tagit emot boken, i
+                enlighet med distansavtalslagen (SFS 2005:59). Ångerrätten
+                innebär att du kan returnera varan utan att ange skäl.
+              </p>
+              <p className="font-semibold text-ink">Så här gör du:</p>
+              <ol className="list-decimal space-y-1 pl-4">
+                <li>
+                  Meddela oss inom 14 dagar från mottagandet via e-post:{" "}
+                  <a
+                    href="mailto:cecilia@strandevall.se"
+                    className="underline hover:text-ink"
+                  >
+                    cecilia@strandevall.se
+                  </a>
+                  , eller fyll i{" "}
+                  <a
+                    href="https://www.konsumentverket.se/globalassets/publikationer/produkter-och-tjanster/standardblankett-for-angarande-av-avtal.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-ink"
+                  >
+                    Standardblankett för ånger (PDF)
+                  </a>
+                  .
+                </li>
+                <li>Returnera boken i ursprungligt skick (oläst, i originalskick).</li>
+                <li>Du står för returfrakt.</li>
+                <li>
+                  Vi återbetalar bokens pris (179 kr) inom 14 dagar efter att vi
+                  mottagit returen, med samma betalningsmetod som du använde vid
+                  köpet. Fraktkostnaden (29 kr) återbetalas ej vid retur.
+                </li>
+              </ol>
             </div>
-          ))}
+          </div>
+
+          {/* Integritetspolicy */}
+          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <h3 className="mb-3 font-bold text-ink">Integritetspolicy (GDPR)</h3>
+            <div className="space-y-3 text-sm leading-relaxed text-ink-muted">
+              <p>
+                cleanconscience AB, org.nr 559163-8712, Lendahlsgatan 13, 441 31
+                Alingsås är personuppgiftsansvarig.
+              </p>
+              <p>
+                <span className="font-semibold text-ink">Vi samlar in:</span>{" "}
+                namn, leveransadress, e-postadress och betalningsinformation
+                (hanteras av Stripe – vi lagrar inga kortuppgifter).
+              </p>
+              <p>
+                <span className="font-semibold text-ink">Ändamål:</span>{" "}
+                Fullgöra köpeavtalet (art. 6.1.b GDPR) samt rättslig förpliktelse
+                för bokföring (art. 6.1.c GDPR). Orderuppgifter sparas i 7 år
+                enligt bokföringslagen (1999:1078).
+              </p>
+              <p>
+                Vi delar uppgifter med Stripe Payments Europe Ltd (betalning) och
+                postoperatör (leverans). Vi säljer aldrig dina uppgifter.
+              </p>
+              <p>
+                Du har rätt till registerutdrag, rättelse, radering och
+                dataportabilitet. Kontakta oss på{" "}
+                <a
+                  href="mailto:cecilia@strandevall.se"
+                  className="underline hover:text-ink"
+                >
+                  cecilia@strandevall.se
+                </a>
+                . Du kan även klaga hos{" "}
+                <a
+                  href="https://www.imy.se"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-ink"
+                >
+                  IMY (imy.se)
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+
+          {/* Köpvillkor */}
+          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <h3 className="mb-3 font-bold text-ink">Köpvillkor</h3>
+            <div className="space-y-3 text-sm leading-relaxed text-ink-muted">
+              <p>
+                <span className="font-semibold text-ink">Säljare:</span>{" "}
+                cleanconscience AB, org.nr 559163-8712, Lendahlsgatan 13, 441 31
+                Alingsås.{" "}
+                <a
+                  href="mailto:cecilia@strandevall.se"
+                  className="underline hover:text-ink"
+                >
+                  cecilia@strandevall.se
+                </a>
+              </p>
+              <p>
+                Alla priser anges i SEK inklusive 6% moms (fysisk bok enligt
+                mervärdesskattelagen). Kvitto/orderbekräftelse skickas per
+                e-post.
+              </p>
+              <p>
+                <span className="font-semibold text-ink">Betalning:</span> Via
+                Stripe Checkout – Visa, Mastercard och Swish accepteras. Avtalet
+                träder i kraft när betalning är genomförd.
+              </p>
+              <p>
+                <span className="font-semibold text-ink">Leverans:</span> Enbart
+                inom Sverige, 2–5 vardagar. Fast fraktkostnad 29 kr. Du ansvarar
+                för att angiven leveransadress är korrekt.
+              </p>
+              <p>
+                Vi reserverar oss för prisändringar och eventuell tillfällig
+                lagerbrist. Tillämplig lag: svensk rätt. Tvist kan hänskjutas
+                till{" "}
+                <a
+                  href="https://www.arn.se"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-ink"
+                >
+                  ARN (arn.se)
+                </a>{" "}
+                eller allmän domstol.
+              </p>
+            </div>
+          </div>
+
+          {/* Cookies */}
+          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+            <h3 className="mb-3 font-bold text-ink">Om cookies</h3>
+            <div className="space-y-3 text-sm leading-relaxed text-ink-muted">
+              <p>
+                Denna webbplats använder inga marknadsförings- eller
+                spårningscookies. Eftersom inga samtyckeskrävande cookies
+                används behövs ingen cookie-banner.
+              </p>
+              <p>
+                Stripes betalningstjänst kan sätta tekniskt nödvändiga cookies
+                enbart under betalningsflödet. Dessa kräver inget samtycke då de
+                är nödvändiga för tjänsten.
+              </p>
+              <p>
+                Trafikstatistik samlas in med{" "}
+                <a
+                  href="https://umami.is"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-ink"
+                >
+                  Umami Analytics
+                </a>
+                , som är cookiefri och GDPR-kompatibel.
+              </p>
+            </div>
+          </div>
         </div>
 
         <p className="mt-8 text-center text-xs text-ink-muted">
