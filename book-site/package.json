@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "kill-node": "taskkill /F /IM node.exe /T"
+    "kill-node": "node -e \"const {execSync}=require('child_process');if(process.platform==='win32')execSync('taskkill /F /IM node.exe /T');else execSync('pkill -f next');\""
   },
   "dependencies": {
     "next": "16.2.6",
