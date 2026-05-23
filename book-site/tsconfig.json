@@ -31,11 +31,13 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    // Excluded to prevent a rebuild loop: Next.js/Turbopack writes generated type files
+    // into .next/types/ during dev, and including them causes TypeScript to retrigger
+    // compilation on every change (next-env.d.ts already provides the necessary type refs).
+    ".next"
   ]
 }
