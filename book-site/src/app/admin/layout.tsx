@@ -10,9 +10,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="sv">
-      <body className="bg-cream text-ink antialiased">{children}</body>
-    </html>
-  );
+  return <>{children}</>;
 }
