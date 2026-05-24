@@ -67,12 +67,8 @@ export default function BookDescription() {
             {/* Decorative book preview card */}
             <div className="overflow-hidden rounded-2xl bg-forest p-8 text-center shadow-xl">
               <div className="mx-auto w-fit overflow-hidden rounded-xl shadow-lg">
-                {/*
-                  Replace with your real book cover.
-                  Path: /book-cover.jpg (or .png/.svg)
-                */}
                 <Image
-                  src="/book-cover.svg"
+                  src="/book-cover.png"
                   alt="Stina och mamma städar – bokomslag"
                   width={200}
                   height={280}
