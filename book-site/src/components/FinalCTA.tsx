@@ -8,7 +8,7 @@ export default function FinalCTA() {
           Redo att beställa?
         </span>
         <h2 className="font-serif text-3xl font-bold text-ink sm:text-4xl">
-          Ta hem boken idag
+          Klicka hem boken idag
         </h2>
         <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-ink-muted">
           <em>Stina och mamma städar</em> – en bilderbok som värmer, engagerar
