@@ -18,12 +18,8 @@ export default function Hero() {
         {/* Book cover */}
         <div className="w-full max-w-[280px] flex-shrink-0 sm:max-w-[320px] lg:max-w-[340px]">
           <div className="relative overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10">
-            {/*
-              [REPLACE] Replace /book-cover.svg with your real book cover image.
-              Recommended: /book-cover.jpg at 680×960px or similar portrait ratio.
-            */}
             <Image
-              src="/book-cover.svg"
+              src="/book-cover.png"
               alt="Bokomslag – Stina och mamma städar"
               width={340}
               height={480}

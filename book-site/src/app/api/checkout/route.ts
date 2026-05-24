@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
               name: "Stina och mamma städar",
               description:
                 "En varm och igenkännbar bilderbok om vardagslivet i en familj.",
-              // [REPLACE] Update image URL when you have a real book cover hosted
-              images: [`${origin}/book-cover.svg`],
+              images: [`${origin}/book-cover.png`],
             },
             unit_amount: BOOK_PRICE_ORE,
           },
