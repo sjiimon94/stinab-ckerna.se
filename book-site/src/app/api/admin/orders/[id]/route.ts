@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { updateOrder } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const ORDERS_FILE = path.join(process.cwd(), "data", "orders.json");
 
 function isAuthorized(req: NextRequest): boolean {
   const password = process.env.ADMIN_PASSWORD;
@@ -25,33 +22,36 @@ export async function PATCH(
 
   const { id } = await params;
 
-  let body: { sent?: boolean };
+  let body: { sent?: boolean; notes?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  if (typeof body.sent !== "boolean") {
+  if (body.sent !== undefined && typeof body.sent !== "boolean") {
     return NextResponse.json(
       { error: "sent field must be a boolean" },
       { status: 400 }
     );
   }
 
+  const updates: { sent?: boolean; sent_at?: string | null; notes?: string } =
+    {};
+
+  if (typeof body.sent === "boolean") {
+    updates.sent = body.sent;
+    // Automatically set/clear sent_at timestamp
+    updates.sent_at = body.sent ? new Date().toISOString() : null;
+  }
+
+  if (typeof body.notes === "string") {
+    updates.notes = body.notes;
+  }
+
   try {
-    if (!fs.existsSync(ORDERS_FILE)) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-    const content = fs.readFileSync(ORDERS_FILE, "utf-8");
-    const orders = JSON.parse(content) as Array<{ id: string; sent: boolean }>;
-    const index = orders.findIndex((o) => o.id === id);
-    if (index === -1) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-    orders[index].sent = body.sent;
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8");
-    return NextResponse.json(orders[index]);
+    const order = await updateOrder(id, updates);
+    return NextResponse.json(order);
   } catch {
     return NextResponse.json(
       { error: "Failed to update order" },

@@ -43,7 +43,7 @@ export default function PricingShipping() {
                 <span className="text-2xl font-bold text-clay">208 kr</span>
               </p>
             </div>
-            <BuyButton label="Köp nu – 179 kr + frakt" className="w-full" />
+            <BuyButton className="w-full" />
           </div>
 
           {/* Shipping details card */}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import UmamiEvent from "@/components/UmamiEvent";
 
 export const metadata: Metadata = {
   title: "Betalning avbruten",
@@ -9,6 +10,8 @@ export const metadata: Metadata = {
 export default function CancelPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4 py-24 text-center">
+      <UmamiEvent event="checkout_cancelled" />
+
       {/* Icon */}
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-clay-light text-4xl">
         ↩️

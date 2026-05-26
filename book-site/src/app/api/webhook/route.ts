@@ -1,48 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import fs from "fs";
-import path from "path";
+import { createOrder, orderExistsByStripeSession } from "@/lib/db";
+import { sendOrderConfirmation } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
-
-const ORDERS_FILE = path.join(process.cwd(), "data", "orders.json");
-
-interface Order {
-  id: string;
-  createdAt: string;
-  name: string;
-  address: {
-    line1: string | null;
-    line2: string | null;
-    city: string | null;
-    postal_code: string | null;
-    country: string | null;
-  };
-  email: string | null;
-  quantity: number;
-  amount: number;
-  sent: boolean;
-}
-
-function readOrders(): Order[] {
-  try {
-    if (!fs.existsSync(ORDERS_FILE)) {
-      return [];
-    }
-    const content = fs.readFileSync(ORDERS_FILE, "utf-8");
-    return JSON.parse(content) as Order[];
-  } catch {
-    return [];
-  }
-}
-
-function writeOrders(orders: Order[]): void {
-  const dir = path.dirname(ORDERS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8");
-}
 
 export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -80,31 +41,52 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const shipping = session.collected_information?.shipping_details;
-    const order: Order = {
-      id: session.id,
-      createdAt: new Date().toISOString(),
-      name: shipping?.name ?? "",
-      address: {
-        line1: shipping?.address?.line1 ?? null,
-        line2: shipping?.address?.line2 ?? null,
-        city: shipping?.address?.city ?? null,
-        postal_code: shipping?.address?.postal_code ?? null,
-        country: shipping?.address?.country ?? null,
-      },
-      email: session.customer_details?.email ?? null,
-      quantity: 1,
-      amount: session.amount_total ?? 0,
-      sent: false,
-    };
 
-    const orders = readOrders();
-    // Avoid duplicates
-    if (!orders.find((o) => o.id === order.id)) {
-      orders.push(order);
-      writeOrders(orders);
+    // Idempotency – skip if already stored
+    const alreadyExists = await orderExistsByStripeSession(session.id);
+    if (alreadyExists) {
+      return NextResponse.json({ received: true });
+    }
+
+    const shipping = session.collected_information?.shipping_details;
+    const quantity = Math.max(
+      1,
+      parseInt(session.metadata?.quantity ?? "1", 10) || 1
+    );
+
+    try {
+      const order = await createOrder({
+        stripe_session_id: session.id,
+        customer_name: shipping?.name ?? session.customer_details?.name ?? null,
+        email: session.customer_details?.email ?? null,
+        phone: session.customer_details?.phone ?? null,
+        quantity,
+        amount: session.amount_total ?? 0,
+        currency: session.currency ?? "sek",
+        address_line1: shipping?.address?.line1 ?? null,
+        address_line2: shipping?.address?.line2 ?? null,
+        address_city: shipping?.address?.city ?? null,
+        address_postal_code: shipping?.address?.postal_code ?? null,
+        address_country: shipping?.address?.country ?? null,
+        sent: false,
+        sent_at: null,
+        notes: null,
+      });
+
+      // Send confirmation email (non-blocking – log error but don't fail)
+      sendOrderConfirmation(order).catch((err) => {
+        console.error("Failed to send order confirmation email:", err);
+      });
+    } catch (err) {
+      console.error("Failed to save order to database:", err);
+      // Return 500 so Stripe will retry the webhook
+      return NextResponse.json(
+        { error: "Failed to store order" },
+        { status: 500 }
+      );
     }
   }
 
   return NextResponse.json({ received: true });
 }
+

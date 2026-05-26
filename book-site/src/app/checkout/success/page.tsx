@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
+import UmamiEvent from "@/components/UmamiEvent";
 
 export const metadata: Metadata = {
   title: "Tack för ditt köp!",
@@ -40,6 +41,8 @@ export default async function SuccessPage({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4 py-24 text-center">
+      <UmamiEvent event="purchase_completed" />
+
       {/* Icon */}
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-sage-light text-4xl">
         ✅
