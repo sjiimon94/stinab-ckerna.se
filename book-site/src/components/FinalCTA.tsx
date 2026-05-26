@@ -16,7 +16,7 @@ export default function FinalCTA() {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4">
-          <BuyButton label="Köp boken – 179 kr" />
+          <BuyButton />
           <p className="text-sm text-ink-muted">
             179 kr + 29 kr frakt &nbsp;·&nbsp; Leverans inom Sverige &nbsp;·&nbsp; 14 dagars ångerrätt
           </p>

@@ -7,12 +7,14 @@ En fristående, konverteringsoptimerad försäljningssida för bilderboken
 
 ## Teknikstack
 
-- **Next.js 16** (App Router)
-- **React 19**
-- **TypeScript**
-- **Tailwind CSS 4**
-- **Stripe Checkout** (betalning)
-- Inga onödiga beroenden
+| Lager | Teknologi |
+|---|---|
+| Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4 |
+| Betalning | Stripe Checkout + Stripe Webhooks |
+| Databas | Supabase (PostgreSQL) |
+| E-post | Resend |
+| Analytics | Umami (cookiefritt, GDPR-kompatibelt) |
+| Deploy | Vercel |
 
 ---
 
@@ -24,12 +26,15 @@ npm install
 
 # 2. Skapa miljövariabelfil
 cp .env.local.example .env.local
-# Fyll i STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_SITE_URL och ADMIN_PASSWORD
+# Fyll i variablerna – se avsnittet Miljövariabler nedan
 
-# 3. (Valfritt) Starta Stripe webhook-lyssnare lokalt
+# 3. Kör Supabase-schema (en gång)
+# Kopiera innehållet i ../supabase/schema.sql och kör i Supabase SQL Editor
+
+# 4. (Valfritt) Starta Stripe webhook-lyssnare lokalt
 stripe listen --forward-to localhost:3000/api/webhook
 
-# 4. Starta utvecklingsservern
+# 5. Starta utvecklingsservern
 npm run dev
 ```
 
@@ -43,40 +48,59 @@ npm run dev
 |---|---|---|
 | `STRIPE_SECRET_KEY` | Stripe Secret Key (`sk_live_...` eller `sk_test_...`) | **Ja** |
 | `STRIPE_WEBHOOK_SECRET` | Webhook-hemlighet från Stripe dashboard (`whsec_...`) | **Ja** |
-| `NEXT_PUBLIC_SITE_URL` | Produktions-URL för denna sida (används för Stripe redirect-URLs) | Ja |
-| `ADMIN_PASSWORD` | Lösenord för admin-panelen – välj ett starkt lösenord | **Ja** |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami Analytics website ID (se avsnittet Analytics nedan) | Nej |
+| `SUPABASE_URL` | Projektets URL från Supabase → Settings → API | **Ja** |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service Role Key (server-side only, aldrig publik) | **Ja** |
+| `RESEND_API_KEY` | API-nyckel från resend.com | **Ja** |
+| `RESEND_FROM_EMAIL` | Avsändaradress (måste vara verifierad domain i Resend) | **Ja** |
+| `NEXT_PUBLIC_SITE_URL` | Produktions-URL, t.ex. `https://stinabockerna.se` | **Ja** |
+| `ADMIN_PASSWORD` | Lösenord för admin-panelen | **Ja** |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami Analytics website ID | Nej |
 
 ---
 
-## Admin-panel
+## Supabase-setup
 
-URL: `/admin`
+### 1. Skapa projekt
+1. Gå till [supabase.com](https://supabase.com) och skapa ett nytt projekt.
+2. Välj region närmast dina kunder (t.ex. `eu-central-1`).
 
-Panelen låter dig se alla beställningar och markera dem som skickade.
+### 2. Kör schema
+1. Öppna **SQL Editor** i Supabase Dashboard.
+2. Klistra in och kör hela innehållet i `../supabase/schema.sql`.
 
-**Sätta lösenord:**
-1. Lägg till `ADMIN_PASSWORD=ditt-starka-lösenord` i `.env.local`
-2. På Vercel: lägg till variabeln under *Project → Settings → Environment Variables*
+Det skapar:
+- Tabellen `orders` med alla fält
+- Sekvensen `order_number_seq` (börjar på 1)
+- Funktionen `next_order_number()` som ger `SB-YYYY-NNNN`
 
-**Användning:**
-- Gå till `/admin` och logga in med ditt `ADMIN_PASSWORD`
-- Tabellen visar alla ordrar sorterade med nyaste överst
-- Klicka "Markera skickad" när du skickat en beställning
+### 3. Hämta API-nycklar
+Gå till **Project Settings → API**:
+- `SUPABASE_URL` = "Project URL"
+- `SUPABASE_SERVICE_ROLE_KEY` = "service_role" key (ej "anon" key)
+
+> ⚠️ Service Role Key har full åtkomst – lägg den **aldrig** i klientkod eller git.
 
 ---
 
-## Stripe Webhooks
+## Resend-setup
 
-För att ordrar ska sparas automatiskt måste du konfigurera en webhook i Stripe dashboard.
+1. Skapa konto på [resend.com](https://resend.com).
+2. Gå till **Domains** → lägg till och verifiera din domain (lägger till DNS-poster).
+3. Gå till **API Keys** → skapa en nyckel.
+4. Sätt `RESEND_FROM_EMAIL` till en adress på din verifierade domain.
 
-1. Gå till [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
-2. Klicka "Add endpoint"
+---
+
+## Stripe-setup
+
+### Dashboard-inställningar
+1. Aktivera Swish under **Settings → Payment methods** (kräver Swedish business).
+2. Gå till **Webhooks** → klicka "Add endpoint".
 3. Endpoint URL: `https://DIN-DOMAIN/api/webhook`
 4. Events: välj `checkout.session.completed`
-5. Kopiera "Signing secret" och lägg till som `STRIPE_WEBHOOK_SECRET` i din miljö
+5. Kopiera "Signing secret" → `STRIPE_WEBHOOK_SECRET`
 
-**Testa webhooks lokalt:**
+### Testa webhooks lokalt
 ```bash
 stripe listen --forward-to localhost:3000/api/webhook
 ```
@@ -84,41 +108,37 @@ Kopiera det visade `whsec_...`-värdet till din `.env.local`.
 
 ---
 
-## Analytics
+## Admin-panel
 
-Projektet stödjer [Umami Analytics](https://umami.is) – cookiefritt och GDPR-kompatibelt.
-Ingen cookie-banner krävs.
+URL: `/admin`
 
-**Kom igång med Umami Cloud (gratis, rekommenderas):**
-1. Skapa konto på [umami.is](https://umami.is)
-2. Klicka "Add website" och ange din domän
-3. Kopiera det genererade website ID:t
-4. Lägg till i `.env.local` (och på Vercel):
-   ```
-   NEXT_PUBLIC_UMAMI_WEBSITE_ID=ditt-umami-webbplats-id
-   ```
+Panelen låter dig:
+- Se alla beställningar sorterade med nyaste överst
+- Se ordernummer (`SB-YYYY-NNNN`), datum, kundinfo, adress, antal, belopp
+- Markera order som skickad (sätter automatiskt `sent_at`)
+- Lägga till/redigera anteckningar per order (klicka i anteckningsfältet)
 
-Utan `NEXT_PUBLIC_UMAMI_WEBSITE_ID` inläses inget tracking-script alls.
+**Lösenord:** Sätt `ADMIN_PASSWORD` i miljövariabler. På Vercel: *Project → Settings → Environment Variables*.
 
 ---
 
-## Bildplacering
+## Analytics (Umami)
 
-Cecilia ersätter bilderna manuellt. Följande filer behöver bytas ut:
+Projektet spårar följande händelser:
 
-| Fil | Storlek | Beskrivning |
-|---|---|---|
-| `public/book-cover.svg` → `public/book-cover.jpg` | 680×960 px | Bokomslag (JPG/PNG) |
-| `public/og-image.png` | 1200×630 px | OG-bild för sociala medier (lägg till filen) |
-| `public/author-photo.jpg` | 200×200 px (kvadrat) | Författarfoto (lägg till filen) |
+| Event | Utlöses av |
+|---|---|
+| Sidvisning (automatisk) | Alla sidbesök |
+| `checkout_started` | Klick på köpknapp |
+| `purchase_completed` | Landning på `/checkout/success` |
+| `checkout_cancelled` | Landning på `/checkout/cancel` |
 
-När `public/author-photo.jpg` finns – sätt `author.photo = "/author-photo.jpg"` i
-`src/components/BookDescription.tsx`.
+**Kom igång:**
+1. Skapa konto på [umami.is](https://umami.is) (gratis cloud).
+2. Lägg till din webbplats → kopiera Website ID.
+3. Sätt `NEXT_PUBLIC_UMAMI_WEBSITE_ID` i miljövariabler.
 
-Uppdatera även bildvägarna i:
-- `src/components/Hero.tsx` — `src="/book-cover.svg"` → `src="/book-cover.jpg"`
-- `src/components/BookDescription.tsx` — samma sak
-- `src/app/api/checkout/route.ts` — `images: [...]` raden
+Utan `NEXT_PUBLIC_UMAMI_WEBSITE_ID` laddas inget tracking-script.
 
 ---
 
@@ -132,72 +152,109 @@ npm run start   # Starta produktionsserver
 
 ### Driftsätta på Vercel
 
-1. Skapa ett nytt Vercel-projekt och importera detta repo.
-2. **Root Directory**: lämna som `/` (standard — ange INTE `book-site/`).
-3. Lägg till miljövariabler under *Project → Settings → Environment Variables*.
-4. Anslut din domän.
+1. Skapa nytt Vercel-projekt, importera detta repo.
+2. **Root Directory**: ange `book-site`.
+3. Lägg till alla miljövariabler under *Project → Settings → Environment Variables*.
+4. Anslut din domain.
+5. Sätt upp Stripe webhook mot din produktions-URL (se Stripe-setup ovan).
+
+---
+
+## Manuell setup-checklista (före launch)
+
+### Supabase
+- [ ] Projekt skapat i rätt region
+- [ ] `supabase/schema.sql` körts i SQL Editor
+- [ ] `SUPABASE_URL` och `SUPABASE_SERVICE_ROLE_KEY` tillagda i Vercel
+
+### Stripe
+- [ ] Live-nycklar (`sk_live_...`) tillagda i Vercel
+- [ ] Webhook mot `https://DIN-DOMAIN/api/webhook` skapad
+- [ ] Event `checkout.session.completed` valt
+- [ ] `STRIPE_WEBHOOK_SECRET` tillagd i Vercel
+- [ ] Swish aktiverat (om önskat)
+
+### Resend
+- [ ] Domain verifierad i Resend
+- [ ] `RESEND_API_KEY` tillagd i Vercel
+- [ ] `RESEND_FROM_EMAIL` satt till adress på verifierad domain
+- [ ] Testmail skickat och mottaget
+
+### Umami
+- [ ] Webbplats skapad i Umami
+- [ ] `NEXT_PUBLIC_UMAMI_WEBSITE_ID` tillagd i Vercel
+
+### Vercel
+- [ ] `NEXT_PUBLIC_SITE_URL` satt till produktions-URL (utan snedstreck)
+- [ ] `ADMIN_PASSWORD` satt till ett starkt lösenord
+- [ ] Domain ansluten och SSL-certifikat aktivt
+- [ ] Testdeploy lyckad
+
+---
+
+## Launch-testplan
+
+### Grundläggande flöde
+- [ ] Besök startsidan – laddas utan fel
+- [ ] Köpknapp visas med antal-väljare (standard: 1)
+
+### Köp – 1 bok
+- [ ] Klicka köpknapp → Umami `checkout_started` skickas
+- [ ] Stripe Checkout öppnas med korrekt belopp (179 + 29 = 208 kr)
+- [ ] Betala med testkort `4242 4242 4242 4242`
+- [ ] Landning på `/checkout/success` → Umami `purchase_completed` skickas
+- [ ] Webhook sparar order i Supabase med korrekt data
+- [ ] Ordernummer genereras (`SB-YYYY-0001`)
+- [ ] Orderbekräftelse skickas till kund-email (kontrollera inbox)
+- [ ] Admin `/admin` visar ordern med rätt data
+
+### Köp – flera böcker
+- [ ] Sätt antal till 3 → knapptext uppdateras ("Köp 3 böcker – 566 kr")
+- [ ] Stripe Checkout visar 3 × Stina + 1 × Frakt
+- [ ] Webhook sparar `quantity: 3`
+- [ ] Email visar korrekt antal
+
+### Admin-funktioner
+- [ ] Markera order som skickad → status ändras till "Skickad ✓"
+- [ ] `sent_at` sätts automatiskt och visas i tabellen
+- [ ] Klicka i anteckningsfältet → textfält visas
+- [ ] Skriv anteckning och spara → sparas i Supabase
+- [ ] Uppdatera-knappen hämtar senaste data
+
+### Cancel-flöde
+- [ ] Avbryt betalning i Stripe → landning på `/checkout/cancel`
+- [ ] Umami `checkout_cancelled` skickas
+- [ ] Ingen order sparas i Supabase
+
+### Ordernummer
+- [ ] Andra köpet får `SB-YYYY-0002`
+- [ ] Inget ordernummer är Stripe session-ID
 
 ---
 
 ## Sidstruktur
 
 ```
-/                   → Försäljningssida (single-page)
-/checkout/success   → Bekräftelsesida efter köp
-/checkout/cancel    → Sida om betalningen avbruten
-/admin              → Admin-panel (lösenordsskyddad)
-/api/checkout       → Skapar Stripe Checkout-session (POST)
-/api/webhook        → Stripe webhook-mottagare (POST)
-/api/admin/orders   → Hämta ordrar (GET, kräver auth)
-/api/admin/orders/[id] → Uppdatera orderstatus (PATCH, kräver auth)
+/                      → Försäljningssida
+/checkout/success      → Bekräftelsesida (verifierar betalning mot Stripe)
+/checkout/cancel       → Avbrutet-sida
+/admin                 → Admin-panel (lösenordsskyddad)
+/api/checkout          → Skapar Stripe Checkout-session (POST)
+/api/webhook           → Stripe webhook-mottagare (POST)
+/api/admin/orders      → Hämta ordrar (GET, kräver auth)
+/api/admin/orders/[id] → Uppdatera order – sent/notes (PATCH, kräver auth)
 ```
 
 ---
 
-## Projektstruktur
+## Bildplacering
 
-```
-src/
-  app/
-    layout.tsx                     # HTML-skal + metadata
-    page.tsx                       # Huvudsida (sammanfogar alla sektioner)
-    globals.css                    # Tailwind v4 + design-tokens
-    sitemap.ts                     # XML-sitemap
-    api/
-      checkout/route.ts            # Stripe Checkout API
-      webhook/route.ts             # Stripe webhook-mottagare
-      admin/
-        orders/route.ts            # Admin: lista ordrar (GET)
-        orders/[id]/route.ts       # Admin: uppdatera order (PATCH)
-    checkout/
-      success/page.tsx             # Tacksida (verifierar betalning mot Stripe)
-      cancel/page.tsx              # Avbrutet-sida
-    admin/
-      layout.tsx                   # Admin-layout (ingen Navbar/Footer)
-      page.tsx                     # Admin-panel UI
-  components/
-    Navbar.tsx                     # Sticky toppmeny med köp-CTA
-    Hero.tsx                       # Hero: bokomslag + hook + CTA
-    ValueProps.tsx                 # 4 säljargument
-    BookDescription.tsx            # Bokbeskrivning + författarinfo
-    HowToBuy.tsx                   # 4-stegs köpguide
-    PricingShipping.tsx            # Prislista + fraktinfo
-    Policies.tsx                   # Ångerrätt, GDPR, köpvillkor, cookies
-    FAQ.tsx                        # Vanliga frågor (HTML details/summary)
-    FinalCTA.tsx                   # Avslutande köp-CTA
-    Footer.tsx                     # Footer med kontakt + företagsinfo
-    BuyButton.tsx                  # Client-komponent: initierar Stripe Checkout
-  middleware.ts                    # Skyddar /admin-routes
-data/
-  orders.json                      # Orderdata (gitignorerad, skapas automatiskt)
-public/
-  book-cover.svg                   # [REPLACE] med riktigt omslag
-  robots.txt                       # SEO: robots-direktiv
-.env.local.example                 # Mall för miljövariabler
-package.json
-tsconfig.json
-next.config.ts
-postcss.config.mjs
-README.md
-```
+Följande filer behöver bytas ut/läggas till i `public/`:
 
+| Fil | Storlek | Beskrivning |
+|---|---|---|
+| `public/book-cover.png` | 680×960 px | Bokomslag |
+| `public/og-image.png` | 1200×630 px | OG-bild för sociala medier |
+| `public/author-photo.jpg` | 200×200 px | Författarfoto |
+
+När `public/author-photo.jpg` finns – sätt `author.photo = "/author-photo.jpg"` i `src/components/BookDescription.tsx`.

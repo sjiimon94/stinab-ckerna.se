@@ -51,7 +51,7 @@ export default function Hero() {
 
           {/* CTA */}
           <div className="mt-10">
-            <BuyButton label="Köp boken – 179 kr" />
+            <BuyButton />
             <p className="mt-3 text-sm text-white/50">
               + 29 kr frakt &nbsp;·&nbsp; Leverans inom Sverige&nbsp;·&nbsp;Säker betalning
             </p>

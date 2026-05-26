@@ -30,7 +30,7 @@ export default function Navbar() {
         </nav>
 
         {/* CTA */}
-        <BuyButton label="Köp boken" className="py-2 px-5 text-sm" />
+        <BuyButton compact className="py-2 px-5 text-sm" />
       </div>
     </header>
   );

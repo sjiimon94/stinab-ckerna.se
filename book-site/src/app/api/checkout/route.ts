@@ -3,8 +3,9 @@ import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
 
-const BOOK_PRICE_ORE = 17900; // 179 kr in öre
-const SHIPPING_ORE = 2900; // 29 kr in öre
+const BOOK_PRICE_ORE = 17900; // 179 kr i öre
+const SHIPPING_ORE = 2900; // 29 kr i öre
+const MAX_QUANTITY = 10;
 
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -12,7 +13,6 @@ function getStripe() {
     throw new Error("STRIPE_SECRET_KEY is not set");
   }
   return new Stripe(key, {
-    // [REPLACE] Update API version if you upgrade Stripe
     apiVersion: "2026-04-22.dahlia",
   });
 }
@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
       req.headers.get("origin") ||
       process.env.NEXT_PUBLIC_SITE_URL ||
       "http://localhost:3001";
+
+    const body = await req.json().catch(() => ({})) as { quantity?: unknown };
+    const qty = Math.max(1, Math.min(MAX_QUANTITY, Number(body.quantity) || 1));
 
     const stripe = getStripe();
 
@@ -41,7 +44,7 @@ export async function POST(req: NextRequest) {
             },
             unit_amount: BOOK_PRICE_ORE,
           },
-          quantity: 1,
+          quantity: qty,
         },
         {
           price_data: {
@@ -63,6 +66,7 @@ export async function POST(req: NextRequest) {
       metadata: {
         product: "stina-och-mamma-stadar",
         source: "book-site",
+        quantity: String(qty),
       },
     });
 

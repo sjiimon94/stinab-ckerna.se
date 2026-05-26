@@ -1,28 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-interface Address {
-  line1: string | null;
-  line2: string | null;
-  city: string | null;
-  postal_code: string | null;
-  country: string | null;
-}
+import { useState, useEffect, useRef } from "react";
 
 interface Order {
   id: string;
-  createdAt: string;
-  name: string;
-  address: Address;
+  order_number: string;
+  stripe_session_id: string;
+  created_at: string;
+  customer_name: string | null;
   email: string | null;
+  phone: string | null;
   quantity: number;
   amount: number;
+  currency: string;
+  address_line1: string | null;
+  address_line2: string | null;
+  address_city: string | null;
+  address_postal_code: string | null;
+  address_country: string | null;
   sent: boolean;
+  sent_at: string | null;
+  notes: string | null;
 }
 
-function formatAddress(addr: Address): string {
-  return [addr.line1, addr.line2, addr.postal_code, addr.city, addr.country]
+function formatAddress(order: Order): string {
+  return [
+    order.address_line1,
+    order.address_line2,
+    order.address_postal_code,
+    order.address_city,
+  ]
     .filter(Boolean)
     .join(", ");
 }
@@ -46,6 +53,88 @@ function getStoredToken(): string | null {
   return sessionStorage.getItem("admin_token");
 }
 
+function NotesCell({
+  order,
+  token,
+  onSaved,
+}: {
+  order: Order;
+  token: string;
+  onSaved: (id: string, notes: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(order.notes ?? "");
+  const [saving, setSaving] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (editing) textareaRef.current?.focus();
+  }, [editing]);
+
+  async function save() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({ notes: draft }),
+      });
+      if (!res.ok) throw new Error("Fel");
+      onSaved(order.id, draft);
+      setEditing(false);
+    } catch {
+      // keep editing open on error
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-1">
+        <textarea
+          ref={textareaRef}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          rows={2}
+          className="w-full min-w-[160px] rounded-lg border border-border px-2 py-1 text-xs text-ink outline-none focus:ring-2 focus:ring-forest"
+        />
+        <div className="flex gap-1">
+          <button
+            onClick={save}
+            disabled={saving}
+            className="rounded-md bg-forest px-2 py-0.5 text-xs font-semibold text-white disabled:opacity-50"
+          >
+            {saving ? "Sparar\u2026" : "Spara"}
+          </button>
+          <button
+            onClick={() => {
+              setDraft(order.notes ?? "");
+              setEditing(false);
+            }}
+            className="rounded-md border border-border px-2 py-0.5 text-xs text-ink-muted hover:bg-sand"
+          >
+            Avbryt
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setEditing(true)}
+      className="max-w-[180px] truncate text-left text-xs text-ink-muted hover:text-ink"
+      title={draft || "L\u00e4gg till anteckning\u2026"}
+    >
+      {draft || <span className="italic opacity-50">Anteckning\u2026</span>}
+    </button>
+  );
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState<string | null>(getStoredToken);
@@ -55,13 +144,11 @@ export default function AdminPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [fetchTick, setFetchTick] = useState(0);
 
-  // Trigger a fetch whenever token changes or refreshTrigger is incremented
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
 
     async function load() {
-      // Defer setState to avoid synchronous setState-in-effect
       await Promise.resolve();
       if (cancelled) return;
 
@@ -70,12 +157,12 @@ export default function AdminPage() {
 
       try {
         const res = await fetch("/api/admin/orders", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: "Bearer " + token },
         });
         if (cancelled) return;
 
         if (res.status === 401) {
-          setError("Fel lösenord – prova igen.");
+          setError("Fel l\u00f6senord \u2013 prova igen.");
           setToken(null);
           sessionStorage.removeItem("admin_token");
           return;
@@ -84,7 +171,7 @@ export default function AdminPage() {
         const data: Order[] = await res.json();
         if (!cancelled) setOrders(data);
       } catch {
-        if (!cancelled) setError("Kunde inte hämta ordrar. Försök igen.");
+        if (!cancelled) setError("Kunde inte h\u00e4mta ordrar. F\u00f6rs\u00f6k igen.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -114,19 +201,22 @@ export default function AdminPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: "Bearer " + token,
         },
         body: JSON.stringify({ sent: true }),
       });
       if (!res.ok) throw new Error("Fel vid uppdatering");
-      setOrders((prev) =>
-        prev.map((o) => (o.id === id ? { ...o, sent: true } : o))
-      );
+      const updated: Order = await res.json();
+      setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
     } catch {
-      setError("Kunde inte uppdatera ordern. Försök igen.");
+      setError("Kunde inte uppdatera ordern. F\u00f6rs\u00f6k igen.");
     } finally {
       setUpdatingId(null);
     }
+  }
+
+  function handleNotesSaved(id: string, notes: string) {
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, notes } : o)));
   }
 
   if (!token) {
@@ -134,11 +224,11 @@ export default function AdminPage() {
       <div className="flex min-h-screen items-center justify-center bg-cream px-4">
         <div className="w-full max-w-sm rounded-2xl border border-border bg-white p-8 shadow-sm">
           <h1 className="mb-6 font-serif text-2xl font-bold text-ink">
-            Admin – logga in
+            Admin \u2013 logga in
           </h1>
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <label className="text-sm font-semibold text-ink" htmlFor="pw">
-              Lösenord
+              L\u00f6senord
             </label>
             <input
               id="pw"
@@ -162,12 +252,14 @@ export default function AdminPage() {
     );
   }
 
+  const unsentCount = orders.filter((o) => !o.sent).length;
+
   return (
     <div className="min-h-screen bg-cream px-4 py-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="font-serif text-2xl font-bold text-ink">
-            Beställningar
+            Best\u00e4llningar
           </h1>
           <div className="flex gap-3">
             <button
@@ -175,7 +267,7 @@ export default function AdminPage() {
               disabled={loading}
               className="rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-sand disabled:opacity-50"
             >
-              {loading ? "Laddar…" : "Uppdatera"}
+              {loading ? "Laddar\u2026" : "Uppdatera"}
             </button>
             <button
               onClick={() => {
@@ -197,14 +289,15 @@ export default function AdminPage() {
         )}
 
         {loading && orders.length === 0 ? (
-          <p className="text-ink-muted">Laddar ordrar…</p>
+          <p className="text-ink-muted">Laddar ordrar\u2026</p>
         ) : orders.length === 0 ? (
-          <p className="text-ink-muted">Inga beställningar ännu.</p>
+          <p className="text-ink-muted">Inga best\u00e4llningar \u00e4nnu.</p>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
-            <table className="w-full min-w-[700px] text-sm">
+            <table className="w-full min-w-[900px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-sand/40 text-left text-xs font-semibold uppercase tracking-wide text-ink-muted">
+                  <th className="px-4 py-3">Order#</th>
                   <th className="px-4 py-3">Datum</th>
                   <th className="px-4 py-3">Namn</th>
                   <th className="px-4 py-3">Adress</th>
@@ -212,7 +305,8 @@ export default function AdminPage() {
                   <th className="px-4 py-3">Antal</th>
                   <th className="px-4 py-3">Belopp</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Åtgärd</th>
+                  <th className="px-4 py-3">Anteckning</th>
+                  <th className="px-4 py-3">\u00c5tg\u00e4rd</th>
                 </tr>
               </thead>
               <tbody>
@@ -221,14 +315,22 @@ export default function AdminPage() {
                     key={order.id}
                     className="border-b border-border last:border-0 hover:bg-sand/20"
                   >
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs font-semibold text-forest">
+                      {order.order_number}
+                    </td>
                     <td className="whitespace-nowrap px-4 py-3 text-ink-muted">
-                      {formatDate(order.createdAt)}
+                      {formatDate(order.created_at)}
                     </td>
                     <td className="px-4 py-3 font-medium text-ink">
-                      {order.name || "–"}
+                      {order.customer_name || "\u2013"}
+                      {order.phone && (
+                        <span className="block text-xs text-ink-muted">
+                          {order.phone}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-ink-muted">
-                      {formatAddress(order.address) || "–"}
+                      {formatAddress(order) || "\u2013"}
                     </td>
                     <td className="px-4 py-3 text-ink-muted">
                       {order.email ? (
@@ -239,7 +341,7 @@ export default function AdminPage() {
                           {order.email}
                         </a>
                       ) : (
-                        "–"
+                        "\u2013"
                       )}
                     </td>
                     <td className="px-4 py-3 text-center text-ink">
@@ -250,14 +352,28 @@ export default function AdminPage() {
                     </td>
                     <td className="px-4 py-3">
                       {order.sent ? (
-                        <span className="inline-flex items-center rounded-full bg-sage-light px-2.5 py-0.5 text-xs font-semibold text-sage-dark">
-                          Skickad ✓
-                        </span>
+                        <div>
+                          <span className="inline-flex items-center rounded-full bg-sage-light px-2.5 py-0.5 text-xs font-semibold text-sage-dark">
+                            Skickad \u2713
+                          </span>
+                          {order.sent_at && (
+                            <span className="mt-0.5 block text-xs text-ink-muted">
+                              {formatDate(order.sent_at)}
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         <span className="inline-flex items-center rounded-full bg-clay-light px-2.5 py-0.5 text-xs font-semibold text-clay-dark">
                           Ej skickad
                         </span>
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <NotesCell
+                        order={order}
+                        token={token}
+                        onSaved={handleNotesSaved}
+                      />
                     </td>
                     <td className="px-4 py-3">
                       {!order.sent && (
@@ -267,7 +383,7 @@ export default function AdminPage() {
                           className="rounded-lg bg-forest px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-forest-light disabled:opacity-50"
                         >
                           {updatingId === order.id
-                            ? "Sparar…"
+                            ? "Sparar\u2026"
                             : "Markera skickad"}
                         </button>
                       )}
@@ -280,8 +396,8 @@ export default function AdminPage() {
         )}
 
         <p className="mt-6 text-xs text-ink-muted">
-          Totalt {orders.length} beställning{orders.length !== 1 ? "ar" : ""} ·{" "}
-          {orders.filter((o) => !o.sent).length} ej skickade
+          Totalt {orders.length} best\u00e4llning{orders.length !== 1 ? "ar" : ""} \u00b7{" "}
+          {unsentCount} ej skickade
         </p>
       </div>
     </div>
