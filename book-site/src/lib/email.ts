@@ -19,7 +19,7 @@ function formatAddress(order: Order): string {
 }
 
 function formatAmount(ore: number): string {
-  return `${(ore / 100).toFixed(0)} kr`;
+  return `${Math.round(ore / 100)} kr`;
 }
 
 export async function sendOrderConfirmation(order: Order): Promise<void> {

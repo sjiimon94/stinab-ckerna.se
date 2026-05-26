@@ -25,7 +25,11 @@ export async function POST(req: NextRequest) {
       "http://localhost:3001";
 
     const body = await req.json().catch(() => ({})) as { quantity?: unknown };
-    const qty = Math.max(1, Math.min(MAX_QUANTITY, Number(body.quantity) || 1));
+    const rawQty = Number(body.quantity);
+    if (body.quantity !== undefined && (!Number.isInteger(rawQty) || rawQty < 1)) {
+      return NextResponse.json({ error: "Ogiltigt antal." }, { status: 400 });
+    }
+    const qty = Math.min(MAX_QUANTITY, rawQty || 1);
 
     const stripe = getStripe();
 

@@ -16,9 +16,11 @@ interface UmamiEventProps {
 }
 
 export default function UmamiEvent({ event, data }: UmamiEventProps) {
+  // Intentionally run once on mount only – we want a single tracking call
+  // per page load, not on every re-render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     window.umami?.track(event, data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;
