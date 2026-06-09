@@ -12,7 +12,7 @@ const steps = [
   {
     number: "3",
     title: "Betala säkert",
-    body: "Välj betalningsmetod – vi accepterar kort och Swish via Stripe.",
+    body: "Välj betalningsmetod – vi tar emot kort och Swish via Stripe. (För tillfället fungerar inte Swish-betalning.)",
   },
   {
     number: "4",
