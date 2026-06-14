@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const origin =
       req.headers.get("origin") ||
       process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3001";
+      "https://stinabockerna.se";
 
     const body = await req.json().catch(() => ({})) as { quantity?: unknown };
     const rawQty = Number(body.quantity);

@@ -15,11 +15,11 @@ export const metadata: Metadata = {
       "En varm bilderbok om samarbete, skratt och hur vardagen kan bli något fint när man gör det tillsammans. Inbunden, 32 sidor, för barn 3–6 år.",
     locale: "sv_SE",
     type: "website",
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://TODO_BOOK_DOMAIN",
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://stinabockerna.se",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://stinabockerna.se"
   ),
   other: {
     "book:isbn": "9789181174670",
