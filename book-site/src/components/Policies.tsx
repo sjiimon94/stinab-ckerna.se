@@ -124,8 +124,9 @@ export default function Policies() {
               </p>
               <p>
                 <span className="font-semibold text-ink">Betalning:</span> Via
-                Stripe Checkout – Visa, Mastercard och Swish accepteras. Avtalet
-                träder i kraft när betalning är genomförd.
+                Stripe Checkout – Visa och Mastercard accepteras. Swish stöds
+                för närvarande inte. Avtalet träder i kraft när betalning är
+                genomförd.
               </p>
               <p>
                 <span className="font-semibold text-ink">Leverans:</span> Enbart
