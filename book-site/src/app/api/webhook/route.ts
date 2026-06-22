@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: "2026-04-22.dahlia" });
+  const stripe = new Stripe(stripeKey);
 
   const sig = req.headers.get("stripe-signature");
   if (!sig) {

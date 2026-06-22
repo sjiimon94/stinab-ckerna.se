@@ -12,9 +12,7 @@ function getStripe() {
   if (!key) {
     throw new Error("STRIPE_SECRET_KEY is not set");
   }
-  return new Stripe(key, {
-    apiVersion: "2026-04-22.dahlia",
-  });
+  return new Stripe(key);
 }
 
 export async function POST(req: NextRequest) {
