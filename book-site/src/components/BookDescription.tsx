@@ -11,8 +11,8 @@ const paragraphs = [
 const author = {
   name: "Cecilia Strandevall",
   bio: 'Cecilia Strandevall är barnboksförfattaren bakom "Stina och mamma städar". Med ett varmt berättarhjärta och ett öga för det lilla i vardagen skapar hon böcker som berör och engagerar hela familjen. ISBN: 978-91-8117-467-0.',
-  // Add real author photo at /author-photo.jpg when available
-  photo: null as string | null,
+  // author-photo.jpg should be placed at public/author-photo.jpg
+  photo: "/author-photo.jpg" as string | null,
 };
 
 export default function BookDescription() {

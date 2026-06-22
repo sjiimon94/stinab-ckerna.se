@@ -52,8 +52,8 @@ export default async function SuccessPage({
         Tack för ditt köp!
       </h1>
       <p className="mx-auto mt-4 max-w-md text-lg text-ink-muted">
-        Din beställning är bekräftad. En orderbekräftelse har skickats till din
-        e-postadress.
+        Din beställning är bekräftad. En orderbekräftelse skickas till din
+        e-postadress inom kort.
       </p>
       <p className="mx-auto mt-3 max-w-md text-ink-muted">
         <em>Stina och mamma städar</em> är på väg till dig – förvänta dig

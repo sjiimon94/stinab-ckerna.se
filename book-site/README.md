@@ -94,11 +94,12 @@ Gå till **Project Settings → API**:
 ## Stripe-setup
 
 ### Dashboard-inställningar
-1. Aktivera Swish under **Settings → Payment methods** (kräver Swedish business).
-2. Gå till **Webhooks** → klicka "Add endpoint".
-3. Endpoint URL: `https://DIN-DOMAIN/api/webhook`
-4. Events: välj `checkout.session.completed`
-5. Kopiera "Signing secret" → `STRIPE_WEBHOOK_SECRET`
+1. Gå till **Webhooks** → klicka "Add endpoint".
+2. Endpoint URL: `https://stinabockerna.se/api/webhook`
+3. Events: välj `checkout.session.completed`
+4. Kopiera "Signing secret" → `STRIPE_WEBHOOK_SECRET`
+
+> **Swish:** Swish stöds för närvarande inte och marknadsförs inte på sajten. Om du vill aktivera det framöver: gå till **Settings → Payment methods** och aktivera Swish (kräver Swedish business-konto hos Stripe). Uppdatera då betalningscopy i `HowToBuy.tsx`, `FAQ.tsx`, `PricingShipping.tsx` och `Policies.tsx`.
 
 ### Testa webhooks lokalt
 ```bash
@@ -162,6 +163,10 @@ npm run start   # Starta produktionsserver
 
 ## Manuell setup-checklista (före launch)
 
+### Bilder (git)
+- [ ] `public/og-image.png` (1200×630 px) committad och pushad
+- [ ] `public/author-photo.jpg` committad och pushad
+
 ### Supabase
 - [ ] Projekt skapat i rätt region
 - [ ] `supabase/schema.sql` körts i SQL Editor
@@ -169,10 +174,10 @@ npm run start   # Starta produktionsserver
 
 ### Stripe
 - [ ] Live-nycklar (`sk_live_...`) tillagda i Vercel
-- [ ] Webhook mot `https://DIN-DOMAIN/api/webhook` skapad
+- [ ] Webhook mot `https://stinabockerna.se/api/webhook` skapad
 - [ ] Event `checkout.session.completed` valt
 - [ ] `STRIPE_WEBHOOK_SECRET` tillagd i Vercel
-- [ ] Swish aktiverat (om önskat)
+- [ ] (Valfritt) Swish aktiverat – för närvarande inte aktivt på sajten
 
 ### Resend
 - [ ] Domain verifierad i Resend
@@ -185,7 +190,7 @@ npm run start   # Starta produktionsserver
 - [ ] `NEXT_PUBLIC_UMAMI_WEBSITE_ID` tillagd i Vercel
 
 ### Vercel
-- [ ] `NEXT_PUBLIC_SITE_URL` satt till produktions-URL (utan snedstreck)
+- [ ] `NEXT_PUBLIC_SITE_URL` satt till `https://stinabockerna.se` (utan snedstreck)
 - [ ] `ADMIN_PASSWORD` satt till ett starkt lösenord
 - [ ] Domain ansluten och SSL-certifikat aktivt
 - [ ] Testdeploy lyckad
@@ -249,12 +254,16 @@ npm run start   # Starta produktionsserver
 
 ## Bildplacering
 
-Följande filer behöver bytas ut/läggas till i `public/`:
+Följande filer måste finnas i `public/` **och vara committade till git** för att synas i produktion:
 
-| Fil | Storlek | Beskrivning |
-|---|---|---|
-| `public/book-cover.png` | 680×960 px | Bokomslag |
-| `public/og-image.png` | 1200×630 px | OG-bild för sociala medier |
-| `public/author-photo.jpg` | 200×200 px | Författarfoto |
+| Fil | Storlek | Beskrivning | Status |
+|---|---|---|---|
+| `public/book-cover.png` | 680×960 px | Bokomslag | ✅ finns i repo |
+| `public/og-image.png` | 1200×630 px | OG-bild för sociala medier | ⚠️ måste committas |
+| `public/author-photo.jpg` | 200×200 px | Författarfoto | ⚠️ måste committas |
 
-När `public/author-photo.jpg` finns – sätt `author.photo = "/author-photo.jpg"` i `src/components/BookDescription.tsx`.
+> **Viktigt:** Det räcker inte att lägga filerna i mappen lokalt – de måste `git add`-as och pushas. Annars visas de inte på Vercel.
+
+`author-photo.jpg` är redan kopplad i `src/components/BookDescription.tsx` – lägg bara filen i `public/`, committa och pusha så visas den automatiskt.
+
+`og-image.png` används av Open Graph-metadata i `src/app/layout.tsx`. Utan den visas ingen bild vid delning i sociala medier.

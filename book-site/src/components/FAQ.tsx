@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "Hur betalar jag?",
-    a: "Via Stripe Checkout – vi accepterar bankkort (Visa, Mastercard m.fl.) och Swish.",
+    a: "Via Stripe Checkout – vi accepterar bankkort (Visa, Mastercard m.fl.). Swish stöds för närvarande inte.",
   },
   {
     q: "Får jag en orderbekräftelse?",
@@ -25,8 +25,7 @@ const faqs = [
   },
   {
     q: "Till vem passar boken?",
-    // [REPLACE] Update with real target audience description
-    a: "Boken riktar sig till barn i åldern 3–7 år och är perfekt som läsbok tillsammans med en förälder eller som present.",
+    a: "Boken riktar sig till barn i åldern 3–6 år och är perfekt som läsbok tillsammans med en förälder eller som present.",
   },
 ];
 

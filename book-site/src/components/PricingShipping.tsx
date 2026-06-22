@@ -96,8 +96,9 @@ export default function PricingShipping() {
                   ✓
                 </span>
                 <span>
-                  <strong className="text-white">Spårning:</strong> Du får ett
-                  spårningsnummer via e-post när boken är skickad.
+                  <strong className="text-white">Orderbekräftelse:</strong> Du
+                  får en orderbekräftelse skickad till din e-postadress direkt
+                  efter genomfört köp.
                 </span>
               </li>
               <li className="flex gap-3">
@@ -108,8 +109,9 @@ export default function PricingShipping() {
                   ✓
                 </span>
                 <span>
-                  <strong className="text-white">Betalning:</strong> Säkert via
-                  Stripe – kort och Swish accepteras.
+                  <strong className="text-white">Betalning:</strong> Säkert
+                  via Stripe – bankkort (Visa, Mastercard m.fl.) accepteras.
+                  Swish stöds för närvarande inte.
                 </span>
               </li>
             </ul>

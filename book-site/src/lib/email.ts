@@ -23,13 +23,18 @@ function formatAmount(ore: number): string {
 }
 
 export async function sendOrderConfirmation(order: Order): Promise<void> {
-  if (!order.email) return;
+  if (!order.email) {
+    console.warn(`[email] No email address for order ${order.order_number} – skipping`);
+    return;
+  }
 
   const resend = getResend();
   const fromEmail =
     process.env.RESEND_FROM_EMAIL ?? "noreply@stinabockerna.se";
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://stinabockerna.se";
+
+  console.log(`[email] Sending order confirmation for ${order.order_number} from "${fromEmail}" to "${order.email}"`);
 
   const html = `<!DOCTYPE html>
 <html lang="sv">
@@ -87,10 +92,17 @@ export async function sendOrderConfirmation(order: Order): Promise<void> {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: `Stina och mamma städar <${fromEmail}>`,
     to: order.email,
     subject: `Orderbekräftelse ${order.order_number} – Stina och mamma städar`,
     html,
   });
+
+  if (error) {
+    console.error(`[email] Resend returned an error for order ${order.order_number}:`, error);
+    throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  }
+
+  console.log(`[email] Order confirmation sent for ${order.order_number} – Resend id: ${data?.id}`);
 }
