@@ -4,7 +4,7 @@ export const config = {
   matcher: ["/admin/:path*"],
 };
 
-export function proxy(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const password = process.env.ADMIN_PASSWORD;
 
   // If no password is configured, deny access entirely

@@ -163,6 +163,10 @@ npm run start   # Starta produktionsserver
 
 ## Manuell setup-checklista (före launch)
 
+### Bilder (git)
+- [ ] `public/og-image.png` (1200×630 px) committad och pushad
+- [ ] `public/author-photo.jpg` committad och pushad
+
 ### Supabase
 - [ ] Projekt skapat i rätt region
 - [ ] `supabase/schema.sql` körts i SQL Editor
@@ -250,12 +254,16 @@ npm run start   # Starta produktionsserver
 
 ## Bildplacering
 
-Följande filer behöver bytas ut/läggas till i `public/`:
+Följande filer måste finnas i `public/` **och vara committade till git** för att synas i produktion:
 
-| Fil | Storlek | Beskrivning |
-|---|---|---|
-| `public/book-cover.png` | 680×960 px | Bokomslag ✅ (finns redan) |
-| `public/og-image.png` | 1200×630 px | OG-bild för sociala medier |
-| `public/author-photo.jpg` | 200×200 px | Författarfoto |
+| Fil | Storlek | Beskrivning | Status |
+|---|---|---|---|
+| `public/book-cover.png` | 680×960 px | Bokomslag | ✅ finns i repo |
+| `public/og-image.png` | 1200×630 px | OG-bild för sociala medier | ⚠️ måste committas |
+| `public/author-photo.jpg` | 200×200 px | Författarfoto | ⚠️ måste committas |
 
-`author-photo.jpg` är redan kopplad i `src/components/BookDescription.tsx` – lägg bara filen i `public/` så visas den automatiskt.
+> **Viktigt:** Det räcker inte att lägga filerna i mappen lokalt – de måste `git add`-as och pushas. Annars visas de inte på Vercel.
+
+`author-photo.jpg` är redan kopplad i `src/components/BookDescription.tsx` – lägg bara filen i `public/`, committa och pusha så visas den automatiskt.
+
+`og-image.png` används av Open Graph-metadata i `src/app/layout.tsx`. Utan den visas ingen bild vid delning i sociala medier.
