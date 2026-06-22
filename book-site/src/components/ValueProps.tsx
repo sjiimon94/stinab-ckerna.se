@@ -7,7 +7,6 @@ const values = [
   {
     icon: "🎨",
     title: "Vackert illustrerad",
-    // [REPLACE] Update with real illustration details if desired
     body: "Livfulla illustrationer som engagerar både barn och vuxna, sida för sida.",
   },
   {
